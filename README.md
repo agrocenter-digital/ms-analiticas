@@ -27,6 +27,8 @@ Validación local asume que el total coincide con la suma de subtotales y que ca
 
 El workflow `Verificacion manual ms-analiticas` se puede ejecutar manualmente desde GitHub Actions una vez creado el repositorio. Ejecuta las pruebas disponibles sin PostgreSQL externo y construye una imagen solo en el runner; no publica a Docker Hub ni despliega en EC2. Las pruebas que requieren PostgreSQL se omiten y deben validarse por separado. El workflow aún no se ha ejecutado en GitHub.
 
+El workflow separado `Publicar imagen ms-analiticas (manual)` está preparado localmente para publicar solo desde `main`, con etiqueta `sha-<commit>` y digest en el resumen, previa configuración coordinada de `DOCKERHUB_USERNAME` y `DOCKERHUB_TOKEN`. No publica `latest` ni despliega en EC2. Una etiqueta de commit puede sobrescribirse al reconstruir; usar el digest registrado para identificar exactamente la imagen. No se ha ejecutado ni validado en GitHub y omite pruebas que requieren PostgreSQL.
+
 `docker build -t ms-analiticas:local .` construye la imagen Java 21 sin usuario root. El healthcheck usa el puerto interno 8084; si se cambia `SERVER_PORT`, debe ajustarse también el healthcheck del despliegue. KCL está desactivado por defecto y `UP` no demuestra consumo. La configuración real de BD y Cognito sigue pendiente; no desplegar aún.
 
 `mvn test` ejecuta pruebas unitarias y omite integración PostgreSQL salvo `ANALYTICS_PG_TEST=true`. La integración **borra las tablas de métricas y eventos procesados**: ejecutar únicamente en una base temporal dedicada.
