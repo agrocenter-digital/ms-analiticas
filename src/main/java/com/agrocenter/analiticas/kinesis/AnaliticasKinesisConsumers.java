@@ -52,6 +52,12 @@ public class AnaliticasKinesisConsumers implements HealthIndicator {
     public AnaliticasKinesisConsumers(AnaliticasProcessor processor, CuarentenaService cuarentena) { this.processor = processor; this.cuarentena = cuarentena; }
     @Override public Health health() { return stopping.get() ? Health.down().withDetail("kinesis", "cerrando").build() : estados.salud(maxLagMs, maxSilenceMs); }
 
+    public record LecturaShard(String stream, String aplicacion, String shard, Long lagMs,
+                               Long antiguedadMs, boolean lecturaAntigua, boolean reintentando, boolean consumidorActivo) { }
+    public List<LecturaShard> lecturas() {
+        return estados.detalle(java.util.Map.of(businessApplication, businessStream, stockApplication, stockStream), maxSilenceMs, stopping.get());
+    }
+
     @PostConstruct public void start() {
         if (businessApplication.equals(stockApplication)) throw new IllegalStateException("Cada stream requiere una aplicacion KCL distinta");
         validarPosicionInicial(initialPosition);
